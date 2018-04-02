@@ -10,18 +10,18 @@ class TestConformalGeometricAlgebra(unittest.TestCase):
       source_point = cga.point(1.0, -10.0, 4.0)
       rotation_plane =  cga.e2 ^ cga.e3
       expected_rotor = cga.rotor(rotation_plane, math.pi)
-      expected_destination_point = cga.sandwich(source_point, expected_rotor)
+      expected_destination_point = cga.act(source_point, expected_rotor)
       computed_rotor = cga.toRotor(cga.toVector(source_point), cga.toVector(expected_destination_point))
-      computed_destination_point = cga.sandwich(source_point, computed_rotor)
+      computed_destination_point = cga.act(source_point, computed_rotor)
       self.assertEqual(cga.homogeneousPoint(computed_destination_point), cga.homogeneousPoint(expected_destination_point))
 
     def test_toRotor_point_2(self):
       source_point = cga.point(-2.0, 1.0, -10.0)
       rotation_plane =  cga.e2 ^ cga.e3
       expected_rotor = cga.rotor(rotation_plane, math.pi)
-      expected_destination_point = cga.sandwich(source_point, expected_rotor)
+      expected_destination_point = cga.act(source_point, expected_rotor)
       computed_rotor = cga.toRotor(cga.toVector(source_point), cga.toVector(expected_destination_point))
-      computed_destination_point = cga.sandwich(source_point, computed_rotor)
+      computed_destination_point = cga.act(source_point, computed_rotor)
       self.assertEqual(cga.homogeneousPoint(computed_destination_point), cga.homogeneousPoint(expected_destination_point))
 
     def test_homogeneousPoint(self):
@@ -38,7 +38,7 @@ class TestConformalGeometricAlgebra(unittest.TestCase):
     def test_translation(self):
       point = cga.point(1, -2, 3)
       translation = cga.translator(cga.vector(1, -4, 2))
-      moved_point = cga.sandwich(point, translation)
+      moved_point = cga.act(point, translation)
       self.assertEqual(moved_point, cga.point(2, -6, 5))
 
     def test_project(self):
@@ -90,5 +90,5 @@ class TestConformalGeometricAlgebra(unittest.TestCase):
     def test_rotation(self):
       point = cga.point(math.cos(math.pi/2), math.sin(math.pi/2), 0)
       rotation = cga.rotor(cga.e1 ^ cga.e3, math.pi / 2.0)
-      rotated_point = cga.sandwich(point, rotation)
+      rotated_point = cga.act(point, rotation)
       self.assertEqual(rotated_point, cga.point(0, math.sin(math.pi/2), math.cos(math.pi/2)))

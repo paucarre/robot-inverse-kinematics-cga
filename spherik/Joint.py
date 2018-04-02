@@ -4,12 +4,6 @@ class Joint(object):
         self.angle_constraint = angle_constraint
         self.distance = distance
 
-    def jointAt(self, index, forward):
-        if(forward):
-            return self.joints[len(self.joints) - 1 - index]
-        else:
-            return self.joints[index]
-
     def __repr__(self):
         return f"{self}"
 

@@ -54,12 +54,12 @@ class ConformalGeometricAlgebra(object):
         second_point = - ~projector * (point_pair | self.e_inf)
         return first_point, second_point
 
-    def sandwich(self, element, transformation):
+    def act(self, element, transformation):
         return transformation * element * (~transformation)
 
-    def sandwiches(self, element, transformations):
+    def acts(self, element, transformations):
         for transformation in transformations:
-            element = self.sandwich(element, transformation)
+            element = self.act(element, transformation)
         return element
 
     def vector(self, x, y, z):
@@ -98,13 +98,16 @@ class ConformalGeometricAlgebra(object):
         distance = destination_point - origin_point
         return math.sqrt(abs(distance * ~distance))
 
+    def plane(self, point_1, point_2, point_3):
+        return point_1 ^ point_2 ^ point_3 ^ self.e_inf
+
     def sphere(self, center, radius):
         sphere_point_1_translation = self.translator(self.vector(radius, 0.0, 0.0))
         sphere_point_2_translation = self.translator(self.vector(0.0, radius, 0.0))
         sphere_point_3_translation = self.translator(self.vector(0.0, 0.0, radius))
         sphere_point_4_translation = self.translator(self.vector(-radius, 0.0, 0.0))
-        sphere = self.sandwich(center, sphere_point_1_translation) ^ \
-                 self.sandwich(center, sphere_point_2_translation) ^ \
-                 self.sandwich(center, sphere_point_3_translation) ^ \
-                 self.sandwich(center, sphere_point_4_translation)
+        sphere = self.act(center, sphere_point_1_translation) ^ \
+                 self.act(center, sphere_point_2_translation) ^ \
+                 self.act(center, sphere_point_3_translation) ^ \
+                 self.act(center, sphere_point_4_translation)
         return sphere

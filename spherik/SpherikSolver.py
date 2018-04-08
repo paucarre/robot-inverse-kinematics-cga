@@ -38,4 +38,4 @@ class SpherikSolver(object):
             meet(self.cga.sphere(point_2, joint_chain.get(1).distance)). \
             meet(self.cga.plane(point_0, point_2, p_prime))
         point_1_first, point_1_second = self.cga.project(point_pair_1)
-        return [point_0, point_1_first, point_2], [point_0, point_1_second, point_2], 
+        return [point_0, point_1_first, point_2], [point_0, point_1_second, point_2]

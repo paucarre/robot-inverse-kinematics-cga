@@ -1,5 +1,4 @@
 from spherik.ConformalGeometricAlgebra import ConformalGeometricAlgebra
-from spherik.JointChain import JointChain
 from spherik.Joint import Joint
 import math
 
@@ -28,13 +27,24 @@ class SpherikSolver(object):
                 previous_position = current_position
         return rotors
 
+    def withinConstraints(self, angles, joints):
+        angles_within_constraints =[angle for angle, joint in zip(angles, joints) \
+            if angle >= - joint.angle_constraint / 2.0 and angle <= joint.angle_constraint / 2.0 ]
+        return len(angles_within_constraints) == len(angles)
+
+    def anglesWithinConstraints(self, joints, list_of_points):
+        list_of_rotors = [self.toRotors(points) for points in list_of_points]
+        list_of_angles = [[self.cga.angleFromRotor(rotor) for rotor in rotors] for rotors in list_of_rotors]
+        list_of_angles_with_joints = [list(zip(angles, joints)) for angles in list_of_angles if self.withinConstraints(angles, joints) ]
+        return list_of_angles_with_joints
+
     def solve(self, joint_chain,  target_position):
         point_0 = self.cga.e_origin
         point_2 = target_position
         p_prime = self.cga.act(self.cga.e_origin, self.cga.translator(self.cga.e1))
         rotation_plane = self.cga.plane(point_0, point_2, p_prime)
-        sphere_center_p_prime_edge_p1 = self.cga.sphere(p_prime, math.sqrt((joint_chain.get(0).distance * joint_chain.get(0).distance) + 1))
-        sphere_center_p2_edge_p1 = self.cga.sphere(point_2, joint_chain.get(1).distance)
+        sphere_center_p_prime_edge_p1 = self.cga.sphere(p_prime, math.sqrt((joint_chain[0].distance * joint_chain[0].distance) + 1))
+        sphere_center_p2_edge_p1 = self.cga.sphere(point_2, joint_chain[1].distance)
         point_pair_1 = sphere_center_p_prime_edge_p1.\
             meet(sphere_center_p2_edge_p1).\
             meet(rotation_plane)

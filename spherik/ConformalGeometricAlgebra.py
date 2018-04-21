@@ -1,5 +1,6 @@
 from clifford import *
 import random
+import math
 class ConformalGeometricAlgebra(object):
 
     def __init__(self, resolution=1e-15):
@@ -19,6 +20,9 @@ class ConformalGeometricAlgebra(object):
         if(float((rotor - cos_half_angle) | rotor.lc((self.e1^self.e2)+(self.e1^self.e3)+(self.e2^self.e3))) < 0.0):
             angle = -angle
         return angle
+
+    def toDegrees(self, angle_in_radians):
+        return angle_in_radians * 360.0 / (2.0 * math.pi)
 
     def toRotor(self, first_vector, second_vector):
         second_vector  = self.normalizeVector(second_vector)

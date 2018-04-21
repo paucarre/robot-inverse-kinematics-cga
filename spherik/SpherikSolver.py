@@ -1,5 +1,4 @@
 from spherik.ConformalGeometricAlgebra import ConformalGeometricAlgebra
-from spherik.PointChain import PointChain
 from spherik.JointChain import JointChain
 from spherik.Joint import Joint
 import math
@@ -14,11 +13,11 @@ class SpherikSolver(object):
     def error(self, target, point_chain):
         return math.sqrt(abs(target | point_chain.get(0, True))) + math.sqrt(abs(self.cga.e_origin | point_chain.get(0, False)))
 
-    def toRotors(self, point_chain):
-        previous_direction = self.cga.vector(1.0, 0.0, 0.0)
+    def toRotors(self, point_chain, initial_direction=[1.0, 0.0, 0.0]):
+        previous_direction = self.cga.vector(*initial_direction)
         previous_position = None
         rotors = []
-        for current_position in point_chain.positions:
+        for current_position in point_chain:
             if previous_position is None:
                 previous_position = current_position
             else:
@@ -29,13 +28,15 @@ class SpherikSolver(object):
                 previous_position = current_position
         return rotors
 
-
     def solve(self, joint_chain,  target_position):
         point_0 = self.cga.e_origin
         point_2 = target_position
         p_prime = self.cga.act(self.cga.e_origin, self.cga.translator(self.cga.e1))
-        point_pair_1 = self.cga.sphere(p_prime, math.sqrt((joint_chain.get(0).distance * joint_chain.get(0).distance) + 1)). \
-            meet(self.cga.sphere(point_2, joint_chain.get(1).distance)). \
-            meet(self.cga.plane(point_0, point_2, p_prime))
+        rotation_plane = self.cga.plane(point_0, point_2, p_prime)
+        sphere_center_p_prime_edge_p1 = self.cga.sphere(p_prime, math.sqrt((joint_chain.get(0).distance * joint_chain.get(0).distance) + 1))
+        sphere_center_p2_edge_p1 = self.cga.sphere(point_2, joint_chain.get(1).distance)
+        point_pair_1 = sphere_center_p_prime_edge_p1.\
+            meet(sphere_center_p2_edge_p1).\
+            meet(rotation_plane)
         point_1_first, point_1_second = self.cga.project(point_pair_1)
-        return [point_0, point_1_first, point_2], [point_0, point_1_second, point_2], 
+        return [[point_0, point_1_first, point_2], [point_0, point_1_second, point_2]]

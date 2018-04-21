@@ -1,19 +1,20 @@
 import unittest
-from spherik.ConformalGeometricAlgebra import ConformalGeometricAlgebra
 from clifford import *
+import math
+
+from spherik.ConformalGeometricAlgebra import ConformalGeometricAlgebra
 from spherik.SpherikSolver import SpherikSolver
-from spherik.PointChain import PointChain
 from spherik.JointChain import JointChain
 from spherik.Joint import Joint
-import math
+
 spherik_solver = SpherikSolver()
 cga = ConformalGeometricAlgebra(1e-11)
 
 class TestSpherikSolver(unittest.TestCase):
 
-    def getRobot(self):
-        joint_1 = Joint(math.pi, 100.0)
-        joint_2 = Joint(math.pi, 100.0)
+    def getRobot(self, constraint_angle):
+        joint_1 = Joint(constraint_angle, 100)
+        joint_2 = Joint(constraint_angle, 100)
         joint_chain = JointChain([joint_1, joint_2])
         return joint_chain
 
@@ -27,7 +28,7 @@ class TestSpherikSolver(unittest.TestCase):
             self.assertTrue(abs(expected_angle - angle) < 1e-6)
 
     def test_solve_simple(self):
-        robot = self.getRobot()
+        robot = self.getRobot(math.pi)
         target_position = cga.act(cga.e_origin, cga.translator(80.0 ^ cga.e2))
         spherik_solver = SpherikSolver()
         solutions = spherik_solver.solve(robot, target_position)
@@ -35,3 +36,16 @@ class TestSpherikSolver(unittest.TestCase):
         self.assertTrue(abs(cga.distance(cga.toVector(point_0), cga.toVector(point_1)) - robot.get(0).distance) < 1.0)
         self.assertTrue(abs(cga.distance(cga.toVector(point_1), cga.toVector(point_2)) - robot.get(1).distance) < 1.0)
         self.assertTrue(abs(cga.distance(cga.toVector(point_2), cga.toVector(target_position))) < 1.0)
+
+    def test_toRotors(self):
+        robot = self.getRobot(math.pi)
+        target_position = cga.act(cga.e_origin, cga.translator(80.0 ^ cga.e2))
+        spherik_solver = SpherikSolver()
+        list_of_points = spherik_solver.solve(robot, target_position)
+        list_of_rotors = [spherik_solver.toRotors(points) for points in list_of_points]
+        list_of_angles = [[cga.toDegrees(cga.angleFromRotor(rotor)) for rotor in rotors] for rotors in list_of_rotors]
+        first_solution = list_of_angles[0]
+        self.assertTrue(abs(list_of_angles[0][0] - 24) < 1.0)
+        self.assertTrue(abs(list_of_angles[0][1] - 133) < 1.0)
+        self.assertTrue(abs(list_of_angles[1][0] - 157) < 1.0)
+        self.assertTrue(abs(list_of_angles[1][1] + 132) < 1.0)

@@ -6,8 +6,8 @@ import math
 class SpherikSolver(object):
 
     def __init__(self):
-        self.cga = ConformalGeometricAlgebra()
-        self.resolution = 1e-10
+        self.resolution = 1e-11
+        self.cga = ConformalGeometricAlgebra(self.resolution)
 
     def error(self, target, point_chain):
         return math.sqrt(abs(target | point_chain.get(0, True))) + math.sqrt(abs(self.cga.e_origin | point_chain.get(0, False)))
@@ -49,4 +49,9 @@ class SpherikSolver(object):
             meet(sphere_center_p2_edge_p1).\
             meet(rotation_plane)
         point_1_first, point_1_second = self.cga.project(point_pair_1)
-        return [[point_0, point_1_first, point_2], [point_0, point_1_second, point_2]]
+        solutions = []
+        if not self.cga.inverseExists(point_1_first):
+            solutions.append([point_0, point_1_first, point_2])
+        if not self.cga.inverseExists(point_1_second):
+            solutions.append([point_0, point_1_second, point_2])
+        return solutions

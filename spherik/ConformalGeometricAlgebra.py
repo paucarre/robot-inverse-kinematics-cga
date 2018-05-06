@@ -34,8 +34,12 @@ class ConformalGeometricAlgebra(object):
     def toPoint(self, vector):
         return self.homogeneousPoint(vector + (0.5 ^ ( (vector**2) * self.e_inf ) ) + self.e_origin)
 
+    def inverseExists(self, point):
+        squared = (~point * point)
+        return squared.isScalar() and abs(squared[()]) > self.resolution
+
     def homogeneousPoint(self, point):
-        if(abs(point | self.e_inf) > self.resolution):
+        if(self.inverseExists(-point | self.e_inf)):
             return point * ( -point | self.e_inf ).normalInv()
         else:
             # zero point, non-invertible

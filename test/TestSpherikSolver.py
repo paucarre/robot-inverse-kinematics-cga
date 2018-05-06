@@ -42,16 +42,22 @@ class TestSpherikSolver(unittest.TestCase):
         list_of_points = spherik_solver.solve(joints, target_position)
         list_of_rotors = [spherik_solver.toRotors(points) for points in list_of_points]
         list_of_angles = [[cga.toDegrees(cga.angleFromRotor(rotor)) for rotor in rotors] for rotors in list_of_rotors]
-        print(list_of_angles)
         self.assertTrue(abs(list_of_angles[0][0] - 24) < 1.0)
         self.assertTrue(abs(list_of_angles[0][1] - 133) < 1.0)
         self.assertTrue(abs(list_of_angles[1][0] - 157) < 1.0)
         self.assertTrue(abs(list_of_angles[1][1] + 132) < 1.0)
 
     def test_anglesWithinConstraints(self):
-        joints = self.getJoints((267.0 * 2.0 * math.pi) / (360.0)) # max 133 degrees
+        joints = self.getJoints((267.0 * 2.0 * math.pi) / (360.0))#  max 133 degrees
         target_position = cga.act(cga.e_origin, cga.translator(80.0 ^ cga.e2))
         spherik_solver = SpherikSolver()
         list_of_points = spherik_solver.solve(joints, target_position)
         angles_within_constraints = spherik_solver.anglesWithinConstraints(joints, list_of_points)
         self.assertEqual(len(angles_within_constraints), 1)
+
+    def test_unreacheable(self):
+        joints = self.getJoints(math.pi)
+        target_position = cga.act(cga.e_origin, cga.translator(1000.0 ^ cga.e2))
+        spherik_solver = SpherikSolver()
+        list_of_points = spherik_solver.solve(joints, target_position)
+        self.assertEqual(len(list_of_points), 0)

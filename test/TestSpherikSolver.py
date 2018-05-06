@@ -57,7 +57,13 @@ class TestSpherikSolver(unittest.TestCase):
 
     def test_unreacheable(self):
         joints = self.getJoints(math.pi)
-        target_position = cga.act(cga.e_origin, cga.translator(1000.0 ^ cga.e2))
+        # Unreacheable
+        target_position = cga.act(cga.e_origin, cga.translator(200.1 ^ cga.e2))
         spherik_solver = SpherikSolver()
         list_of_points = spherik_solver.solve(joints, target_position)
         self.assertEqual(len(list_of_points), 0)
+        # Reacheable
+        target_position = cga.act(cga.e_origin, cga.translator(200.0 ^ cga.e2))
+        spherik_solver = SpherikSolver()
+        list_of_points = spherik_solver.solve(joints, target_position)
+        self.assertEqual(len(list_of_points), 2)

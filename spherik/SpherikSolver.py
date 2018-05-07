@@ -42,16 +42,23 @@ class SpherikSolver(object):
         point_0 = self.cga.e_origin
         point_2 = target_position
         p_prime = self.cga.act(self.cga.e_origin, self.cga.translator(self.cga.e1))
-        rotation_plane = self.cga.plane(point_0, point_2, p_prime)
-        sphere_center_p_prime_edge_p1 = self.cga.sphere(p_prime, math.sqrt((joint_chain[0].distance * joint_chain[0].distance) + 1))
-        sphere_center_p2_edge_p1 = self.cga.sphere(point_2, joint_chain[1].distance)
-        point_pair_1 = sphere_center_p_prime_edge_p1.\
-            meet(sphere_center_p2_edge_p1).\
-            meet(rotation_plane)
-        point_1_first, point_1_second = self.cga.project(point_pair_1)
-        solutions = []
-        if not self.cga.inverseExists(point_1_first):
-            solutions.append([point_0, point_1_first, point_2])
-        if not self.cga.inverseExists(point_1_second):
-            solutions.append([point_0, point_1_second, point_2])
-        return solutions
+        e1e2_rotation_plane = self.cga.act(self.cga.e_origin, self.cga.translator(self.cga.e1)) ^ \
+                self.cga.act(self.cga.e_origin, self.cga.translator(self.cga.e2)) ^ \
+                self.cga.e_origin ^ \
+                self.cga.e_inf
+        # target must be in rotation plane
+        if not self.cga.pointIsInPlane(target_position, e1e2_rotation_plane):
+            return []
+        else:
+            sphere_center_p_prime_edge_p1 = self.cga.sphere(p_prime, math.sqrt((joint_chain[0].distance * joint_chain[0].distance) + 1))
+            sphere_center_p2_edge_p1 = self.cga.sphere(point_2, joint_chain[1].distance)
+            point_pair_1 = sphere_center_p_prime_edge_p1.\
+                meet(sphere_center_p2_edge_p1).\
+                meet(e1e2_rotation_plane)
+            point_1_first, point_1_second = self.cga.project(point_pair_1)
+            solutions = []
+            if not self.cga.inverseExists(point_1_first):
+                solutions.append([point_0, point_1_first, point_2])
+            if not self.cga.inverseExists(point_1_second):
+                solutions.append([point_0, point_1_second, point_2])
+            return solutions

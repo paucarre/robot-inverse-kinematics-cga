@@ -42,10 +42,10 @@ class TestSpherikSolver(unittest.TestCase):
         list_of_points = spherik_solver.solve(joints, target_position)
         list_of_rotors = [spherik_solver.toRotors(points) for points in list_of_points]
         list_of_angles = [[cga.toDegrees(cga.angleFromRotor(rotor)) for rotor in rotors] for rotors in list_of_rotors]
-        self.assertTrue(abs(list_of_angles[0][0] - 24) < 1.0)
-        self.assertTrue(abs(list_of_angles[0][1] - 133) < 1.0)
-        self.assertTrue(abs(list_of_angles[1][0] - 157) < 1.0)
-        self.assertTrue(abs(list_of_angles[1][1] + 132) < 1.0)
+        self.assertTrue(abs(list_of_angles[1][0] - 24) < 1.0)
+        self.assertTrue(abs(list_of_angles[1][1] - 133) < 1.0)
+        self.assertTrue(abs(list_of_angles[0][0] - 157) < 1.0)
+        self.assertTrue(abs(list_of_angles[0][1] + 132) < 1.0)
 
     def test_anglesWithinConstraints(self):
         joints = self.getJoints((267.0 * 2.0 * math.pi) / (360.0))#  max 133 degrees
@@ -55,7 +55,7 @@ class TestSpherikSolver(unittest.TestCase):
         angles_within_constraints = spherik_solver.anglesWithinConstraints(joints, list_of_points)
         self.assertEqual(len(angles_within_constraints), 1)
 
-    def test_unreacheable(self):
+    def test_unreacheable_lenght(self):
         joints = self.getJoints(math.pi)
         # Unreacheable
         target_position = cga.act(cga.e_origin, cga.translator(200.1 ^ cga.e2))
@@ -67,3 +67,12 @@ class TestSpherikSolver(unittest.TestCase):
         spherik_solver = SpherikSolver()
         list_of_points = spherik_solver.solve(joints, target_position)
         self.assertEqual(len(list_of_points), 2)
+
+
+    def test_unreacheable_out_of_plane(self):
+        joints = self.getJoints(math.pi)
+        # Unreacheable (out of plane)
+        target_position =  cga.act(cga.act(cga.e_origin, cga.translator(100 ^ cga.e2)), cga.translator(10.0 ^ cga.e3))
+        spherik_solver = SpherikSolver()
+        list_of_points = spherik_solver.solve(joints, target_position)
+        self.assertEqual(len(list_of_points), 0)

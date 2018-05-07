@@ -38,6 +38,10 @@ class ConformalGeometricAlgebra(object):
         squared = (~point * point)
         return squared.isScalar() and abs(squared[()]) > self.resolution
 
+    def pointIsInPlane(self, point, plane):
+        projection = plane ^ point
+        return projection.isScalar() and abs(projection[()]) < self.resolution
+
     def homogeneousPoint(self, point):
         if(self.inverseExists(-point | self.e_inf)):
             return point * ( -point | self.e_inf ).normalInv()
